@@ -93,13 +93,21 @@ If you modify the source, just run `./install.sh` again — it handles both firs
 
 ### Uninstall
 
-DKMS may remove the original kernel module during installation. To uninstall safely:
+The install script automatically backs up the original kernel module to `./backup/` on first run. To uninstall:
 
 ```bash
 sudo dkms remove hid-playstation-fix/1.0 --all
 ```
 
-Then restore the original module from your distribution's package:
+Then restore the original module from the backup:
+
+```bash
+sudo cp ./backup/hid-playstation.ko* /usr/lib/modules/$(uname -r)/kernel/drivers/hid/
+sudo depmod -a
+sudo modprobe hid_playstation
+```
+
+If the backup is missing, restore from your distribution's package:
 
 ```bash
 # Arch Linux / CachyOS:
@@ -110,12 +118,6 @@ sudo apt reinstall linux-modules-$(uname -r)
 
 # Fedora:
 sudo dnf reinstall kernel-modules-$(uname -r)
-```
-
-Then reload:
-```bash
-sudo depmod -a
-sudo modprobe hid_playstation
 ```
 
 ## Bluetooth Pairing
